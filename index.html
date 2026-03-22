@@ -3,250 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Монополия онлайн | Выбор режима</title>
+    <title>Монополия Онлайн</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
-        * {
-            user-select: none;
-            box-sizing: border-box;
-        }
-
+        * { user-select: none; box-sizing: border-box; }
         body {
             background: linear-gradient(145deg, #1e5a2e 0%, #0a3b1a 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 20px;
         }
-
-        /* Основной контейнер */
         .game-container {
             background: #f7e9b0;
-            background-image: radial-gradient(circle at 25% 40%, rgba(255,245,190,0.6) 2%, transparent 2.5%);
-            background-size: 28px 28px;
             border-radius: 64px;
-            box-shadow: 0 30px 35px rgba(0,0,0,0.5), inset 0 1px 4px rgba(255,255,200,0.8);
-            padding: 20px 25px 25px 25px;
-            transition: all 0.3s;
+            padding: 20px;
+            box-shadow: 0 30px 35px rgba(0,0,0,0.5);
         }
-
-        /* Панель выбора режима */
-        .mode-selector {
-            text-align: center;
-            padding: 30px 20px;
+        .mode-selector, .game-board {
             background: #2c1a12e6;
             backdrop-filter: blur(8px);
             border-radius: 48px;
+            padding: 20px;
             color: #fff3cf;
-            width: 500px;
-            max-width: 90vw;
+            max-width: 600px;
+            margin: 0 auto;
         }
-        .mode-selector h1 {
-            margin: 0 0 10px;
-            font-size: 28px;
-        }
-        .mode-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin: 30px 0;
-        }
-        .mode-btn {
-            background: #f5bc42;
-            border: none;
-            font-size: 20px;
-            font-weight: bold;
-            padding: 12px 24px;
-            border-radius: 60px;
-            cursor: pointer;
-            transition: 0.1s;
-            box-shadow: 0 5px 0 #9b5e1a;
-        }
-        .mode-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #9b5e1a;
-        }
-        .bot-count-selector {
-            background: #1e120bc9;
-            border-radius: 36px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .bot-count-selector select {
-            background: #fff2df;
-            border: none;
-            border-radius: 40px;
-            padding: 8px 16px;
-            font-size: 16px;
-            margin-left: 10px;
-        }
-        .instruction {
-            font-size: 14px;
-            text-align: left;
-            background: #00000066;
-            border-radius: 28px;
-            padding: 12px;
-            margin-top: 20px;
-        }
-        button {
+        .mode-selector { text-align: center; }
+        .mode-buttons { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
+        .mode-btn, button {
             background: #f5bc42;
             border: none;
             font-weight: bold;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 60px;
             cursor: pointer;
-            font-family: inherit;
             box-shadow: 0 3px 0 #9b5e1a;
             margin: 5px;
         }
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #9b5e1a;
-        }
+        button:active { transform: translateY(2px); }
         .room-panel {
-            background: #2b1f14cc;
-            border-radius: 32px;
+            background: #1e120bc9;
+            border-radius: 28px;
             padding: 15px;
             margin: 15px 0;
-            text-align: center;
         }
-        .share-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
+        input, select {
+            background: #fff2df;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 12px;
+            margin: 5px;
         }
-        .share-btn {
-            background: #3b5998;
-            color: white;
-            box-shadow: none;
-            padding: 6px 12px;
-            font-size: 14px;
-        }
+        .share-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+        .share-btn { background: #3b5998; color: white; box-shadow: none; }
         .share-btn.vk { background: #4680c2; }
         .share-btn.ok { background: #f5821f; }
         .share-btn.tg { background: #26a5e4; }
-        .share-btn.wapp { background: #25d366; }
-        .copy-link {
-            background: #4caf50;
-            color: white;
-            margin-top: 10px;
-        }
-        .players-list {
-            background: #1e120bc9;
-            border-radius: 28px;
-            padding: 10px;
-            margin: 10px 0;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .player-item {
-            padding: 5px;
-            border-bottom: 1px solid #a57c3e60;
-        }
-        .start-game-btn {
-            background: #4caf50;
-            color: white;
-            font-size: 18px;
-            padding: 10px 20px;
-            margin-top: 15px;
-        }
-        .back-btn {
-            background: #aa3e3e;
-            color: white;
-            margin-top: 10px;
-        }
-        /* Игровое поле (скрыто до начала) */
-        .game-board {
-            display: none;
-        }
-        .game-board.visible {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 25px;
-        }
-        canvas {
-            background: #fdf8e7;
-            border-radius: 50%;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.4), inset 0 0 0 8px #e4c483, inset 0 0 0 12px #c9a552;
-            display: block;
-        }
-        .info-panel {
-            background: #2c1a12e6;
-            backdrop-filter: blur(8px);
-            border-radius: 48px;
-            padding: 20px 25px;
-            width: 380px;
-            color: #fff3cf;
-        }
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .player-card {
-            background: #1e120bc9;
-            border-radius: 28px;
-            padding: 8px 12px;
-            text-align: center;
-            border-left: 4px solid;
-        }
-        .player-card.active {
-            background: #f5bc4266;
-            box-shadow: 0 0 0 2px #f5bc42;
-        }
-        .turn-indicator {
-            background: #f5bc42;
-            color: #2c1a0c;
-            border-radius: 40px;
-            padding: 6px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .cell-detail {
-            background: #2b1f14cc;
-            border-radius: 32px;
-            padding: 8px 12px;
-            margin: 10px 0;
-            font-size: 12px;
-        }
-        .upgrade-btn {
-            background: #4caf50;
-            color: white;
-            font-size: 12px;
-            padding: 5px;
-            margin-top: 5px;
-            width: 100%;
-        }
-        .property-list {
-            margin-top: 12px;
-            font-size: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        .dice-result {
-            font-size: 20px;
-            font-weight: bold;
-            background: #2b1f14;
-            display: inline-block;
-            padding: 2px 16px;
-            border-radius: 28px;
-            margin: 8px 0;
-        }
+        .players-list { max-height: 150px; overflow-y: auto; margin-top: 10px; }
+        .instruction { font-size: 13px; text-align: left; background: #00000066; border-radius: 28px; padding: 12px; margin-top: 20px; }
+        .game-board { display: none; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .game-board.visible { display: flex; }
+        canvas { background: #fdf8e7; border-radius: 50%; box-shadow: 0 12px 28px rgba(0,0,0,0.4); }
+        .info-panel { width: 360px; }
+        .player-card { background: #1e120bc9; border-radius: 28px; padding: 8px; margin: 5px; border-left: 4px solid; }
+        .player-card.active { background: #f5bc4266; box-shadow: 0 0 0 2px #f5bc42; }
+        .turn-indicator { background: #f5bc42; color: #2c1a0c; border-radius: 40px; padding: 6px; text-align: center; margin-bottom: 10px; }
+        .cell-detail { background: #2b1f14cc; border-radius: 32px; padding: 8px; margin: 10px 0; font-size: 12px; }
+        .upgrade-btn { background: #4caf50; color: white; font-size: 12px; margin-top: 5px; width: 100%; }
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
             justify-content: center;
             align-items: center;
@@ -258,104 +90,90 @@
             padding: 20px;
             max-width: 350px;
             text-align: center;
-            border: 3px solid #f5bc42;
-        }
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        footer {
-            font-size: 10px;
-            text-align: center;
-            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 <div id="app">
-    <!-- Экран выбора режима -->
     <div id="modeSelector" class="mode-selector">
         <h1>🎲 КРУГЛАЯ МОНОПОЛИЯ 🎲</h1>
-        <p>Выберите режим игры</p>
         <div class="mode-buttons">
             <button class="mode-btn" id="botModeBtn">🤖 С БОТАМИ</button>
             <button class="mode-btn" id="humanModeBtn">👥 С ЛЮДЬМИ</button>
         </div>
-        <div id="botSettings" style="display: none;">
-            <div class="bot-count-selector">
+        <div id="botSettings" style="display:none;">
+            <div class="room-panel">
                 <label>Количество ботов (1-3):</label>
                 <select id="botCountSelect">
                     <option value="1">1 бот</option>
                     <option value="2" selected>2 бота</option>
                     <option value="3">3 бота</option>
                 </select>
-                <button id="startBotGameBtn" style="margin-top: 10px;">Начать игру</button>
+                <button id="startBotGameBtn">Начать игру</button>
             </div>
         </div>
-        <div id="humanSettings" style="display: none;">
+        <div id="humanSettings" style="display:none;">
             <div class="room-panel">
-                <p>🔗 Создайте комнату и пригласите друзей</p>
+                <input type="text" id="playerNameInput" placeholder="Ваше имя" value="Игрок">
                 <button id="createRoomBtn">Создать комнату</button>
-                <div id="roomInfo" style="display: none;">
+                <div id="roomInfo" style="display:none;">
                     <hr>
                     <p>Ваша ссылка:</p>
-                    <input type="text" id="inviteLink" readonly style="width: 100%; text-align: center; background:#fff2df; border-radius:40px; padding:6px;">
-                    <button id="copyLinkBtn" class="copy-link">📋 Копировать ссылку</button>
+                    <input type="text" id="inviteLink" readonly style="width:100%;">
+                    <button id="copyLinkBtn">📋 Копировать ссылку</button>
                     <div class="share-buttons">
-                        <button class="share-btn vk" data-share="vk">ВКонтакте</button>
-                        <button class="share-btn ok" data-share="ok">Одноклассники</button>
-                        <button class="share-btn tg" data-share="tg">Telegram</button>
-                        <button class="share-btn wapp" data-share="wapp">WhatsApp</button>
+                        <button class="share-btn vk">ВКонтакте</button>
+                        <button class="share-btn ok">Одноклассники</button>
+                        <button class="share-btn tg">Telegram</button>
+                        <button class="share-btn wapp">WhatsApp</button>
                     </div>
-                    <div id="playersListContainer" class="players-list">
+                    <div class="players-list">
                         <h4>Игроки в комнате:</h4>
                         <div id="playersList"></div>
                     </div>
-                    <button id="startHumanGameBtn" class="start-game-btn">▶ Начать игру</button>
-                    <button id="cancelHumanBtn" class="back-btn">◀ Назад</button>
+                    <button id="startHumanGameBtn" class="start-game-btn">▶ Начать игру (минимум 2)</button>
+                    <button id="cancelHumanBtn">◀ Назад</button>
                 </div>
             </div>
         </div>
         <div class="instruction">
-            📖 Краткая инструкция:<br>
-            • Вы бросаете кубик и ходите по круглому полю.<br>
-            • Если останавливаетесь на свободной улице — можете купить её.<br>
-            • Если у вас вся группа улиц одного цвета — можно строить дома и отели (увеличивают аренду).<br>
-            • Доход получает только владелец от аренды, попавших на его улицу.<br>
-            • Побеждает последний не обанкротившийся игрок.<br>
-            • В режиме "с людьми" хост начинает игру после подключения минимум 2 игроков.
+            📖 <strong>Инструкция:</strong><br>
+            • Бросайте кубик и ходите по кругу.<br>
+            • Покупайте улицы, собирайте цветовые группы (Золотая, Серебряная, Бронзовая).<br>
+            • Если вся группа ваша — стройте дома и отели (увеличивают аренду).<br>
+            • Доход только от аренды (попавшие на вашу улицу платят вам).<br>
+            • Побеждает последний не обанкротившийся.<br>
+            • <strong>Для игры с людьми нужен сервер</strong> (см. инструкцию в коде).
         </div>
     </div>
 
-    <!-- Игровое поле (скрыто) -->
     <div id="gameBoard" class="game-board">
-        <div class="main-panel">
-            <canvas id="gameCanvas" width="620" height="620"></canvas>
-            <div class="info-panel">
-                <div class="turn-indicator" id="turnIndicator">Загрузка...</div>
-                <div class="players-grid" id="playersGrid"></div>
-                <div id="diceResult" class="dice-result">🎲 --</div>
-                <button id="rollBtn">🎲 БРОСИТЬ КУБИК 🎲</button>
-                <div class="cell-detail">
-                    <strong>📌 Клетка:</strong> <span id="currentCellName">—</span><br>
-                    <span id="cellInfo"></span>
-                    <button id="upgradeBtn" class="upgrade-btn" style="display: none;">🏨 Построить дом/отель</button>
-                </div>
-                <div class="property-list" id="propertyList">
-                    <h3>🏘️ ВЛАДЕНИЯ</h3>
-                    <div id="ownedList">—</div>
-                </div>
-                <footer>👥 Игроки ходят по очереди | Только аренда</footer>
-                <button id="exitToMenuBtn" class="back-btn" style="margin-top:10px;">🏠 Выйти в меню</button>
+        <canvas id="gameCanvas" width="620" height="620"></canvas>
+        <div class="info-panel">
+            <div class="turn-indicator" id="turnIndicator"></div>
+            <div id="playersGrid"></div>
+            <div id="diceResult" class="dice-result">🎲 --</div>
+            <button id="rollBtn">🎲 БРОСИТЬ КУБИК</button>
+            <div class="cell-detail">
+                <strong>📌 Клетка:</strong> <span id="currentCellName">—</span><br>
+                <span id="cellInfo"></span>
+                <button id="upgradeBtn" class="upgrade-btn" style="display:none;">🏨 Построить дом/отель</button>
             </div>
+            <div id="propertyList"><h3>🏘️ ВЛАДЕНИЯ</h3><div id="ownedList">—</div></div>
+            <button id="exitToMenuBtn">🏠 Выйти в меню</button>
         </div>
     </div>
 </div>
 
+<div id="gameModal" class="modal">
+    <div class="modal-content">
+        <p id="modalMessage"></p>
+        <div id="modalButtons"></div>
+    </div>
+</div>
+
 <script>
-    // ---------- КЛЕТКИ: 3 бизнес-группы по 2 клетки + служебные ----------
+    // ------------------- ИГРОВАЯ ЛОГИКА (общая) -------------------
     const CELLS = [
         { name: "🏁 СТАРТ", type: "start", price: 0, baseRent: 0, owner: null, houses: 0, hotel: false, buildCost: 0, colorGroup: null },
         { name: "🟡 ЗОЛОТОЙ БИЗНЕС", type: "property", price: 180, baseRent: 30, owner: null, houses: 0, hotel: false, buildCost: 100, colorGroup: "gold", groupIdx: 0 },
@@ -369,7 +187,6 @@
         { name: "🍀 ШАНС", type: "chance", price: 0, baseRent: 0, owner: null },
         { name: "⛓️ ТЮРЬМА", type: "jail", price: 0, fine: 60, owner: null }
     ];
-
     const GROUPS = { gold: [1,2], silver: [4,5], bronze: [7,8] };
     const GROUP_NAMES = { gold: "Золотая", silver: "Серебряная", bronze: "Бронзовая" };
 
@@ -378,54 +195,23 @@
     let gameActive = true;
     let waitingForAction = false;
     let isProcessing = false;
-
-    // Для многопользовательского режима
+    let socket = null;
     let currentRoomId = null;
     let isHost = false;
-    let pollingInterval = null;
 
     // DOM элементы
     const modeSelector = document.getElementById('modeSelector');
     const gameBoardDiv = document.getElementById('gameBoard');
-    const botModeBtn = document.getElementById('botModeBtn');
-    const humanModeBtn = document.getElementById('humanModeBtn');
-    const botSettings = document.getElementById('botSettings');
-    const humanSettings = document.getElementById('humanSettings');
-    const startBotGameBtn = document.getElementById('startBotGameBtn');
-    const createRoomBtn = document.getElementById('createRoomBtn');
-    const roomInfo = document.getElementById('roomInfo');
-    const inviteLinkInput = document.getElementById('inviteLink');
-    const copyLinkBtn = document.getElementById('copyLinkBtn');
-    const playersListDiv = document.getElementById('playersList');
-    const startHumanGameBtn = document.getElementById('startHumanGameBtn');
-    const cancelHumanBtn = document.getElementById('cancelHumanBtn');
-    const botCountSelect = document.getElementById('botCountSelect');
-    const exitToMenuBtn = document.getElementById('exitToMenuBtn');
-
-    // Игровые элементы
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const turnIndicator = document.getElementById('turnIndicator');
-    const playersGrid = document.getElementById('playersGrid');
     const rollBtn = document.getElementById('rollBtn');
     const upgradeBtn = document.getElementById('upgradeBtn');
-    const diceResultSpan = document.getElementById('diceResult');
-    const currentCellNameSpan = document.getElementById('currentCellName');
-    const cellInfoSpan = document.getElementById('cellInfo');
-    const ownedListDiv = document.getElementById('ownedList');
-    const modal = document.getElementById('gameModal') || createModal();
+    const exitBtn = document.getElementById('exitToMenuBtn');
 
-    function createModal() {
-        const div = document.createElement('div');
-        div.id = 'gameModal';
-        div.className = 'modal';
-        div.innerHTML = `<div class="modal-content"><p id="modalMessage"></p><div id="modalButtons"></div></div>`;
-        document.body.appendChild(div);
-        return div;
-    }
-
+    // Вспомогательные функции
     function showModal(message, onClose) {
         waitingForAction = true;
+        const modal = document.getElementById('gameModal');
         const modalMsg = document.getElementById('modalMessage');
         const modalBtns = document.getElementById('modalButtons');
         modalMsg.innerText = message;
@@ -443,13 +229,14 @@
 
     function showConfirmModal(message, onYes, onNo) {
         waitingForAction = true;
+        const modal = document.getElementById('gameModal');
         const modalMsg = document.getElementById('modalMessage');
         const modalBtns = document.getElementById('modalButtons');
         modalMsg.innerText = message;
         modalBtns.innerHTML = `
-            <div class="modal-buttons">
-                <button id="modalYesBtn" class="btn-yes">✅ Да</button>
-                <button id="modalNoBtn" class="btn-no">❌ Нет</button>
+            <div style="display:flex; gap:15px; justify-content:center; margin-top:15px;">
+                <button id="modalYesBtn" style="background:#4caf50;">✅ Да</button>
+                <button id="modalNoBtn" style="background:#aa3e3e;">❌ Нет</button>
             </div>
         `;
         modal.style.display = 'flex';
@@ -468,7 +255,6 @@
         noBtn.addEventListener('click', noHandler);
     }
 
-    // --- Игровая логика (общая) ---
     function getRent(cell) {
         if (cell.type !== 'property') return 0;
         let base = cell.baseRent;
@@ -505,25 +291,8 @@
         }
         updateUI();
         drawBoard();
-        saveGameState();
+        syncGameState();
         return true;
-    }
-
-    function botUpgrade() {
-        for (let iter=0; iter<10; iter++) {
-            let best = null;
-            for (let i=0; i<CELLS.length; i++) {
-                let c = CELLS[i];
-                if (c.type==='property' && c.owner===currentPlayerIndex && !c.hotel) {
-                    let cost = getUpgradeCost(c, currentPlayerIndex);
-                    if (cost!==Infinity && players[currentPlayerIndex].money >= cost) {
-                        if (!best || cost < best.cost) best = {cell:c, cost};
-                    }
-                }
-            }
-            if (!best) break;
-            upgradeProperty(best.cell, currentPlayerIndex, true);
-        }
     }
 
     function movePlayer(playerId, steps, callback) {
@@ -622,19 +391,19 @@
 
     function endTurn() {
         if (!gameActive) return;
-        // удалить банкротов
         players = players.filter(p => p.money > 0);
         if (players.length === 1) {
             gameActive = false;
             showModal(`🏆 Победитель: ${players[0].name}! 🏆`, () => {});
             updateUI();
             drawBoard();
+            syncGameState();
             return;
         }
         currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
         updateUI();
         drawBoard();
-        saveGameState();
+        syncGameState();
         if (players[currentPlayerIndex].isBot && gameActive && !waitingForAction) {
             setTimeout(() => botTurn(), 500);
         }
@@ -645,12 +414,25 @@
         if (waitingForAction) { setTimeout(botTurn, 200); return; }
         isProcessing = true;
         let dice = Math.floor(Math.random()*6)+1;
-        diceResultSpan.innerText = `🎲 ${dice}`;
+        document.getElementById('diceResult').innerText = `🎲 ${dice}`;
         showModal(`🤖 ${players[currentPlayerIndex].name} бросает кубик: ${dice}`, () => {
             makeTurn(currentPlayerIndex, dice);
             isProcessing = false;
-            botUpgrade();
-            saveGameState();
+            // бот улучшает
+            for (let i=0;i<10;i++) {
+                let best = null;
+                for (let c of CELLS) {
+                    if (c.type==='property' && c.owner===currentPlayerIndex && !c.hotel) {
+                        let cost = getUpgradeCost(c, currentPlayerIndex);
+                        if (cost!==Infinity && players[currentPlayerIndex].money >= cost) {
+                            if (!best || cost < best.cost) best = {cell:c, cost};
+                        }
+                    }
+                }
+                if (!best) break;
+                upgradeProperty(best.cell, currentPlayerIndex, true);
+            }
+            syncGameState();
         });
     }
 
@@ -660,44 +442,38 @@
         isProcessing = true;
         rollBtn.disabled = true;
         let dice = Math.floor(Math.random()*6)+1;
-        diceResultSpan.innerText = `🎲 ${dice}`;
+        document.getElementById('diceResult').innerText = `🎲 ${dice}`;
         showModal(`🎲 Вы бросаете кубик: ${dice}`, () => {
             makeTurn(currentPlayerIndex, dice);
             isProcessing = false;
-            saveGameState();
+            syncGameState();
         });
     }
 
-    function upgradeCurrent() {
-        let cell = CELLS[players[currentPlayerIndex].position];
-        if (cell.type==='property' && cell.owner===currentPlayerIndex && !players[currentPlayerIndex].isBot) {
-            upgradeProperty(cell, currentPlayerIndex, false);
-        }
-    }
-
     function updateUI() {
-        playersGrid.innerHTML = '';
+        const grid = document.getElementById('playersGrid');
+        grid.innerHTML = '';
         players.forEach((p, idx) => {
             let div = document.createElement('div');
             div.className = `player-card ${idx===currentPlayerIndex && gameActive ? 'active' : ''}`;
             div.style.borderLeftColor = p.color;
-            div.innerHTML = `<div class="player-name">${p.name}${p.isBot ? ' 🤖' : ' 👤'}</div>
+            div.innerHTML = `<div><strong>${p.name}${p.isBot ? ' 🤖' : ' 👤'}</strong></div>
                              <div>💰 ${Math.floor(p.money)}₽</div>
                              <div>${CELLS[p.position].name}</div>`;
-            playersGrid.appendChild(div);
+            grid.appendChild(div);
         });
-        turnIndicator.innerText = gameActive ? `🎲 Ход: ${players[currentPlayerIndex]?.name}` : "🏁 ИГРА ОКОНЧЕНА";
+        document.getElementById('turnIndicator').innerText = gameActive ? `🎲 Ход: ${players[currentPlayerIndex]?.name}` : "🏁 ИГРА ОКОНЧЕНА";
         rollBtn.disabled = !gameActive || players[currentPlayerIndex]?.isBot || waitingForAction || isProcessing;
 
         let cell = CELLS[players[currentPlayerIndex]?.position] || CELLS[0];
-        currentCellNameSpan.innerText = cell.name;
+        document.getElementById('currentCellName').innerText = cell.name;
         if (cell.type==='property') {
             let rent = getRent(cell);
             let impr = cell.hotel ? "🏨 Отель" : (cell.houses>0 ? `🏘️ ${cell.houses} дом` : "🏠");
             let group = GROUP_NAMES[cell.colorGroup] || "";
             if (cell.owner===currentPlayerIndex) {
                 let canBuild = ownsFullGroup(currentPlayerIndex, cell.colorGroup);
-                cellInfoSpan.innerHTML = `Ваша | Аренда: ${rent}₽<br>${impr}<br>${group}<br>${canBuild ? "✅ Можно строить" : "⚠️ Нужна вся группа"}`;
+                document.getElementById('cellInfo').innerHTML = `Ваша | Аренда: ${rent}₽<br>${impr}<br>${group}<br>${canBuild ? "✅ Можно строить" : "⚠️ Нужна вся группа"}`;
                 if (gameActive && !players[currentPlayerIndex].isBot && !waitingForAction) {
                     let cost = getUpgradeCost(cell, currentPlayerIndex);
                     upgradeBtn.style.display = 'block';
@@ -706,11 +482,11 @@
                 } else upgradeBtn.style.display = 'none';
             } else {
                 let ownerName = cell.owner!==null ? players[cell.owner]?.name : "Свободно";
-                cellInfoSpan.innerHTML = `${ownerName} | Аренда: ${rent}₽<br>${impr}<br>${group}`;
+                document.getElementById('cellInfo').innerHTML = `${ownerName} | Аренда: ${rent}₽<br>${impr}<br>${group}`;
                 upgradeBtn.style.display = 'none';
             }
         } else {
-            cellInfoSpan.innerHTML = cell.type==='chance' ? "🎲 Случайное событие" : (cell.type==='tax' ? `💰 Налог ${cell.taxAmount}₽` : (cell.type==='jail' ? `⛓️ Штраф ${cell.fine}₽` : "🏁 Старт"));
+            document.getElementById('cellInfo').innerHTML = cell.type==='chance' ? "🎲 Случайное событие" : (cell.type==='tax' ? `💰 Налог ${cell.taxAmount}₽` : (cell.type==='jail' ? `⛓️ Штраф ${cell.fine}₽` : "🏁 Старт"));
             upgradeBtn.style.display = 'none';
         }
 
@@ -730,20 +506,20 @@
                     let impr = c.hotel ? "🏨" : (c.houses>0 ? `🏠${c.houses}` : "");
                     return `${c.name} ${impr} (${getRent(c)}₽)`;
                 }).join(', ');
-                ownedHtml += `<span style="color:${p.color}">${p.name} владеет ${GROUP_NAMES[g]} группой: ${cellsInfo}</span>`;
+                ownedHtml += `<span style="color:${p.color}">${p.name} владеет ${GROUP_NAMES[g]} группой: ${cellsInfo}</span><br>`;
             }
         }
-        ownedListDiv.innerHTML = ownedHtml || "— нет полных групп —";
+        document.getElementById('ownedList').innerHTML = ownedHtml || "— нет полных групп —";
     }
 
     function drawBoard() {
-        const w=620, h=620, centerX=310, centerY=310, radius=260, cellR=44;
+        const w=620, h=620, cx=310, cy=310, rad=260, cellR=44;
         const angleStep = (2*Math.PI)/CELLS.length;
         ctx.clearRect(0,0,w,h);
         for (let i=0; i<CELLS.length; i++) {
             let angle = i*angleStep - Math.PI/2;
-            let x = centerX + radius*Math.cos(angle);
-            let y = centerY + radius*Math.sin(angle);
+            let x = cx + rad*Math.cos(angle);
+            let y = cy + rad*Math.sin(angle);
             let cell = CELLS[i];
             let bg = "#f7e5c2";
             if (cell.type==='property') {
@@ -774,8 +550,8 @@
             let p = players[idx];
             if (p.money<=0) continue;
             let angle = p.position*angleStep - Math.PI/2;
-            let x = centerX + radius*Math.cos(angle);
-            let y = centerY + radius*Math.sin(angle);
+            let x = cx + rad*Math.cos(angle);
+            let y = cy + rad*Math.sin(angle);
             let off = (idx-1.5)*5;
             ctx.beginPath();
             ctx.arc(x+off, y+off, 12, 0, 2*Math.PI);
@@ -786,38 +562,24 @@
             ctx.fillText(p.isBot ? "🤖" : "👤", x+off-6, y+off+5);
         }
         ctx.beginPath();
-        ctx.arc(centerX,centerY,70,0,2*Math.PI);
+        ctx.arc(cx,cy,70,0,2*Math.PI);
         ctx.fillStyle="#ffefc0";
         ctx.fill();
         ctx.fillStyle="#c68b3c";
         ctx.font="bold 14px";
-        ctx.fillText("МОНОПОЛИЯ", centerX-42, centerY+5);
+        ctx.fillText("МОНОПОЛИЯ", cx-42, cy+5);
     }
 
-    function saveGameState() {
-        if (currentRoomId) {
-            const state = { players, currentPlayerIndex, gameActive, cells: CELLS.map(c=>({...c})) };
-            localStorage.setItem(`monopoly_${currentRoomId}`, JSON.stringify(state));
+    function syncGameState() {
+        if (socket && currentRoomId) {
+            socket.emit('game_update', { roomId: currentRoomId, players, currentPlayerIndex, gameActive, cells: CELLS });
         }
     }
 
-    function loadGameState(roomId) {
-        const data = localStorage.getItem(`monopoly_${roomId}`);
-        if (data) {
-            const state = JSON.parse(data);
-            players = state.players.map(p=>({...p}));
-            currentPlayerIndex = state.currentPlayerIndex;
-            gameActive = state.gameActive;
-            for (let i=0; i<CELLS.length; i++) Object.assign(CELLS[i], state.cells[i]);
-            return true;
-        }
-        return false;
-    }
-
+    // ------------------- ЛОКАЛЬНАЯ ИГРА С БОТАМИ -------------------
     function startGameWithBots() {
-        const botCount = parseInt(botCountSelect.value);
-        players = [];
-        players.push({ id:0, name:"Вы", money:1000, position:0, skipNext:false, isBot:false, color:"#e62e2e" });
+        const botCount = parseInt(document.getElementById('botCountSelect').value);
+        players = [{ id:0, name:"Вы", money:1000, position:0, skipNext:false, isBot:false, color:"#e62e2e" }];
         for (let i=1; i<=botCount; i++) {
             players.push({ id:i, name:`Бот ${i}`, money:1000, position:0, skipNext:false, isBot:true, color:["#2e6eff","#44aa44","#aa44aa"][i-1] });
         }
@@ -830,103 +592,98 @@
         drawBoard();
         modeSelector.style.display = 'none';
         gameBoardDiv.classList.add('visible');
-        if (pollingInterval) clearInterval(pollingInterval);
-        currentRoomId = null;
+        if (socket) socket.disconnect();
+        socket = null;
     }
 
-    function exitToMenu() {
-        gameBoardDiv.classList.remove('visible');
-        modeSelector.style.display = 'block';
-        if (pollingInterval) clearInterval(pollingInterval);
-        currentRoomId = null;
-        location.reload(); // просто перезагружаем для чистоты
+    // ------------------- МНОГОПОЛЬЗОВАТЕЛЬСКАЯ ИГРА (WebSocket) -------------------
+    function initSocket(roomId, playerName, isHostFlag) {
+        socket = io('https://your-server-url.com'); // Замените на реальный адрес сервера
+        socket.on('connect', () => {
+            socket.emit('join_room', { roomId, playerName, isHost: isHostFlag });
+        });
+        socket.on('room_data', (data) => {
+            players = data.players;
+            currentPlayerIndex = data.currentPlayerIndex;
+            gameActive = data.gameActive;
+            for (let i=0; i<CELLS.length; i++) Object.assign(CELLS[i], data.cells[i]);
+            updateUI();
+            drawBoard();
+            if (!gameActive && data.winner) showModal(`🏆 Победитель: ${data.winner}`, ()=>{});
+        });
+        socket.on('game_update', (data) => {
+            players = data.players;
+            currentPlayerIndex = data.currentPlayerIndex;
+            gameActive = data.gameActive;
+            for (let i=0; i<CELLS.length; i++) Object.assign(CELLS[i], data.cells[i]);
+            updateUI();
+            drawBoard();
+        });
+        socket.on('turn_changed', (data) => {
+            currentPlayerIndex = data.currentPlayerIndex;
+            updateUI();
+        });
+        socket.on('player_left', (data) => {
+            players = players.filter(p => p.id !== data.playerId);
+            updateUI();
+            if (players.length === 1 && gameActive) {
+                gameActive = false;
+                showModal(`🏆 Победитель: ${players[0].name}`, ()=>{});
+            }
+        });
     }
 
-    // --- Многопользовательский режим ---
-    function generateRoomId() {
-        return Math.random().toString(36).substring(2, 8).toUpperCase();
-    }
-
-    function createRoom() {
-        const roomId = generateRoomId();
+    // ------------------- ОБРАБОТЧИКИ UI -------------------
+    document.getElementById('botModeBtn').onclick = () => {
+        document.getElementById('botSettings').style.display = 'block';
+        document.getElementById('humanSettings').style.display = 'none';
+    };
+    document.getElementById('humanModeBtn').onclick = () => {
+        document.getElementById('botSettings').style.display = 'none';
+        document.getElementById('humanSettings').style.display = 'block';
+    };
+    document.getElementById('startBotGameBtn').onclick = startGameWithBots;
+    document.getElementById('createRoomBtn').onclick = () => {
+        const playerName = document.getElementById('playerNameInput').value.trim() || "Игрок";
+        const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
         currentRoomId = roomId;
         isHost = true;
-        const inviteLink = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-        inviteLinkInput.value = inviteLink;
-        roomInfo.style.display = 'block';
-        // Инициализируем игроков: пока только хост
-        players = [{ id:0, name:"Хост", money:1000, position:0, skipNext:false, isBot:false, color:"#e62e2e" }];
-        saveGameState();
+        const inviteLink = `${window.location.origin}${window.location.pathname}?room=${roomId}&name=${encodeURIComponent(playerName)}`;
+        document.getElementById('inviteLink').value = inviteLink;
+        document.getElementById('roomInfo').style.display = 'block';
+        document.getElementById('createRoomBtn').style.display = 'none';
+        // Инициализируем локальные данные
+        players = [{ id:0, name:playerName, money:1000, position:0, skipNext:false, isBot:false, color:"#e62e2e" }];
+        currentPlayerIndex = 0;
+        gameActive = false; // не активна до старта
         updatePlayersList();
-        startPolling();
-        // Убираем кнопку "Создать комнату"
-        createRoomBtn.style.display = 'none';
-    }
-
+        // Подключаем сокет
+        initSocket(roomId, playerName, true);
+    };
+    document.getElementById('copyLinkBtn').onclick = () => {
+        navigator.clipboard.writeText(document.getElementById('inviteLink').value);
+        showModal("Ссылка скопирована!", ()=>{});
+    };
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.onclick = () => {
+            const url = encodeURIComponent(document.getElementById('inviteLink').value);
+            let shareUrl = '';
+            if (btn.classList.contains('vk')) shareUrl = `https://vk.com/share.php?url=${url}`;
+            else if (btn.classList.contains('ok')) shareUrl = `https://connect.ok.ru/dk?st.cmd=WidgetSharePreview&st.shareUrl=${url}`;
+            else if (btn.classList.contains('tg')) shareUrl = `https://t.me/share/url?url=${url}`;
+            else if (btn.classList.contains('wapp')) shareUrl = `https://wa.me/?text=${url}`;
+            if (shareUrl) window.open(shareUrl, '_blank');
+        };
+    });
     function updatePlayersList() {
-        if (!currentRoomId) return;
-        const data = localStorage.getItem(`monopoly_${currentRoomId}`);
-        if (data) {
-            const state = JSON.parse(data);
-            players = state.players;
-            let html = '';
-            players.forEach(p => {
-                html += `<div class="player-item">${p.name} ${p.isBot ? '🤖' : '👤'} (💰${p.money})</div>`;
-            });
-            playersListDiv.innerHTML = html;
-        }
+        const listDiv = document.getElementById('playersList');
+        if (listDiv) listDiv.innerHTML = players.map(p => `<div>${p.name}</div>`).join('');
     }
-
-    function startPolling() {
-        if (pollingInterval) clearInterval(pollingInterval);
-        pollingInterval = setInterval(() => {
-            if (currentRoomId) {
-                const data = localStorage.getItem(`monopoly_${currentRoomId}`);
-                if (data) {
-                    const state = JSON.parse(data);
-                    if (JSON.stringify(players) !== JSON.stringify(state.players)) {
-                        players = state.players;
-                        updatePlayersList();
-                    }
-                }
-            }
-        }, 1000);
-    }
-
-    function joinRoom(roomId) {
-        currentRoomId = roomId;
-        isHost = false;
-        if (loadGameState(roomId)) {
-            // Добавляем нового игрока, если его нет
-            const existing = players.find(p => p.name === localStorage.getItem(`player_name_${roomId}`));
-            if (!existing && players.length < 4) {
-                const newId = players.length;
-                const newName = `Игрок${newId+1}`;
-                players.push({ id:newId, name:newName, money:1000, position:0, skipNext:false, isBot:false, color:`#${Math.floor(Math.random()*16777215).toString(16)}` });
-                localStorage.setItem(`player_name_${roomId}`, newName);
-                saveGameState();
-            }
-            updatePlayersList();
-            startPolling();
-            // Показываем экран ожидания
-            modeSelector.style.display = 'none';
-            document.getElementById('humanSettings').style.display = 'block';
-            botSettings.style.display = 'none';
-            humanSettings.style.display = 'block';
-            roomInfo.style.display = 'block';
-            inviteLinkInput.value = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-            createRoomBtn.style.display = 'none';
-        } else {
-            alert('Комната не найдена');
-        }
-    }
-
-    function startHumanGame() {
+    document.getElementById('startHumanGameBtn').onclick = () => {
         if (players.length < 2) {
             showModal("Нужно минимум 2 игрока для начала игры!", ()=>{});
             return;
         }
-        // Переводим в игровой режим
         gameActive = true;
         currentPlayerIndex = 0;
         waitingForAction = false;
@@ -936,49 +693,40 @@
         drawBoard();
         modeSelector.style.display = 'none';
         gameBoardDiv.classList.add('visible');
-        if (pollingInterval) clearInterval(pollingInterval);
-        saveGameState();
-    }
-
-    // --- Обработчики ---
-    botModeBtn.onclick = () => {
-        botSettings.style.display = 'block';
-        humanSettings.style.display = 'none';
+        syncGameState();
     };
-    humanModeBtn.onclick = () => {
-        botSettings.style.display = 'none';
-        humanSettings.style.display = 'block';
-    };
-    startBotGameBtn.onclick = startGameWithBots;
-    createRoomBtn.onclick = createRoom;
-    copyLinkBtn.onclick = () => {
-        navigator.clipboard.writeText(inviteLinkInput.value);
-        showModal("Ссылка скопирована!", ()=>{});
-    };
-    document.querySelectorAll('.share-btn').forEach(btn => {
-        btn.onclick = () => {
-            const url = encodeURIComponent(inviteLinkInput.value);
-            let shareUrl = '';
-            if (btn.classList.contains('vk')) shareUrl = `https://vk.com/share.php?url=${url}`;
-            else if (btn.classList.contains('ok')) shareUrl = `https://connect.ok.ru/dk?st.cmd=WidgetSharePreview&st.shareUrl=${url}`;
-            else if (btn.classList.contains('tg')) shareUrl = `https://t.me/share/url?url=${url}`;
-            else if (btn.classList.contains('wapp')) shareUrl = `https://wa.me/?text=${url}`;
-            if (shareUrl) window.open(shareUrl, '_blank');
-        };
-    });
-    startHumanGameBtn.onclick = startHumanGame;
-    cancelHumanBtn.onclick = () => {
+    document.getElementById('cancelHumanBtn').onclick = () => {
+        if (socket) socket.disconnect();
         location.reload();
     };
-    exitToMenuBtn.onclick = exitToMenu;
+    exitBtn.onclick = () => {
+        if (socket) socket.disconnect();
+        location.reload();
+    };
     rollBtn.onclick = playerRoll;
-    upgradeBtn.onclick = upgradeCurrent;
+    upgradeBtn.onclick = () => {
+        let cell = CELLS[players[currentPlayerIndex].position];
+        if (cell.type==='property' && cell.owner===currentPlayerIndex && !players[currentPlayerIndex].isBot) {
+            upgradeProperty(cell, currentPlayerIndex, false);
+        }
+    };
 
-    // Проверка URL на комнату
+    // Проверка параметров URL для присоединения к комнате
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get('room');
+    const nameParam = urlParams.get('name');
     if (roomParam) {
-        joinRoom(roomParam);
+        document.getElementById('humanModeBtn').click();
+        document.getElementById('playerNameInput').value = nameParam || "Игрок";
+        document.getElementById('createRoomBtn').style.display = 'none';
+        const roomId = roomParam;
+        currentRoomId = roomId;
+        isHost = false;
+        const inviteLink = `${window.location.origin}${window.location.pathname}?room=${roomId}&name=${encodeURIComponent(document.getElementById('playerNameInput').value)}`;
+        document.getElementById('inviteLink').value = inviteLink;
+        document.getElementById('roomInfo').style.display = 'block';
+        initSocket(roomId, document.getElementById('playerNameInput').value, false);
+        // Запрашиваем данные комнаты
     }
 </script>
 </body>
